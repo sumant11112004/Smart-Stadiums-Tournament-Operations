@@ -17,6 +17,7 @@ const Navbar = () => {
   };
 
   const navLinks = [
+    { path: '/command-center', label: 'Command Center' },
     { path: '/assistant', label: 'AI Assistant' },
     { path: '/heatmap', label: 'Crowd Heatmap' },
     { path: '/queues', label: 'Queues' },

@@ -20,6 +20,7 @@ import SmartTransport from './pages/SmartTransport';
 import Sustainability from './pages/Sustainability';
 import Contact from './pages/Contact';
 import Dashboard from './pages/Dashboard';
+import CommandCenter from './pages/CommandCenter';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
             <Routes>
               {/* Public Views */}
               <Route path="/" element={<LandingPage />} />
+              <Route path="/command-center" element={<CommandCenter />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/assistant" element={<AIAssistant />} />

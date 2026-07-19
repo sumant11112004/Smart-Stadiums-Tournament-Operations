@@ -131,14 +131,14 @@ const LandingPage = () => {
               className="flex flex-wrap gap-4 pt-2"
             >
               <Link 
-                to="/assistant" 
+                to="/command-center" 
                 className="rounded-lg bg-sports-blue px-6 py-3 font-semibold text-white hover:bg-sports-blueLight transition-all shadow-premium hover:shadow-premiumHover flex items-center gap-2"
               >
-                <span>AI Assistant</span>
+                <span>Command Center</span>
                 <FaChevronRight className="text-xs" />
               </Link>
               <Link 
-                to="/heatmap" 
+                to="/command-center" 
                 className="rounded-lg bg-white/15 backdrop-blur-sm border border-white/20 px-6 py-3 font-semibold text-white hover:bg-white/25 transition-all"
               >
                 Live Heatmap
