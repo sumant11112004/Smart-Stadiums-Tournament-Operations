@@ -88,7 +88,7 @@ const AIAssistant = () => {
                   key={idx}
                   onClick={() => handleSendMessage(chip.text)}
                   disabled={loading}
-                  className="rounded-lg bg-sports-grayBg border border-slate-100 hover:border-slate-300 hover:bg-slate-100 px-3 py-2 text-left text-xs font-medium text-sports-navy transition-all flex items-center justify-between w-full"
+                  className="rounded-lg bg-sports-grayBg border border-slate-100 hover:border-slate-300 hover:bg-slate-100 px-3 py-2 text-left text-xs font-medium text-sports-navy transition-all flex items-center justify-between w-full focus:outline-none focus:ring-2 focus:ring-sports-blueLight"
                 >
                   <span>{chip.label}</span>
                   <FaChevronRight className="text-[8px] text-sports-muted" />
@@ -99,7 +99,7 @@ const AIAssistant = () => {
         </div>
 
         {/* Chat window */}
-        <div className="lg:col-span-8 flex flex-col h-[550px] rounded-2xl bg-white shadow-premium border border-slate-100 overflow-hidden">
+        <div className="lg:col-span-8 flex flex-col h-[550px] rounded-2xl bg-white shadow-premium border border-slate-100 overflow-hidden" role="log" aria-label="Stadium Assistant Chat History">
           <div className="bg-sports-navy text-white px-6 py-4 flex items-center justify-between border-b border-slate-850">
             <div className="flex items-center gap-3">
               <div className="rounded-full bg-sports-blue p-2 text-white">
@@ -111,7 +111,7 @@ const AIAssistant = () => {
               </div>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-sports-success animate-ping"></span>
+              <span className="h-2 w-2 rounded-full bg-sports-success animate-ping" aria-hidden="true"></span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-sports-success">Telemetry Online</span>
             </div>
           </div>
@@ -142,7 +142,7 @@ const AIAssistant = () => {
             ))}
 
             {loading && (
-              <div className="flex gap-3 max-w-[85%]">
+              <div className="flex gap-3 max-w-[85%]" aria-live="polite" aria-busy="true">
                 <div className="rounded-full p-2 h-8 w-8 flex items-center justify-center bg-sports-navy text-white shrink-0">
                   <FaRobot className="text-xs" />
                 </div>
@@ -169,12 +169,14 @@ const AIAssistant = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about parking, nearest restroom, security queues..."
-              className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-sports-navy focus:bg-white focus:outline-none focus:border-sports-blue"
+              aria-label="Ask a stadium question"
+              className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-sports-navy focus:bg-white focus:outline-none focus:border-sports-blue focus:ring-2 focus:ring-sports-blueLight"
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="rounded-lg bg-sports-blue p-3 text-white hover:bg-sports-blueLight transition-colors disabled:opacity-40"
+              aria-label="Send Message"
+              className="rounded-lg bg-sports-blue p-3 text-white hover:bg-sports-blueLight transition-colors disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-sports-blueLight"
             >
               <FaPaperPlane className="text-sm" />
             </button>

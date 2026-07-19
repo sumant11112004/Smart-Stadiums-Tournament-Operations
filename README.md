@@ -8,23 +8,101 @@ A production-ready, security-hardened, and GenAI-powered MERN Stack solution bui
 ## 🌟 Technical Highlights
 
 - **Frontend Core:** React 19, Vite, Tailwind CSS, Framer Motion animations.
-- **Backend Core:** Node.js, Express.js, MongoDB Atlas (Mongoose ODM).
+- **Backend Core:** Node.js, Express.js, MongoDB Atlas (Mongoose ODM), Cookie Parser.
 - **AI Core:** Modular Google Gemini API integration (with proactive telemetry-based smart simulation fallbacks).
-- **Security Protocols:** Helmet headers, Express Rate Limiter, password bcrypt hashing, JWT validation, and sanitization structures.
-- **Accessibility (A11y):** Screen reader support, semantic HTML tags, keyboard navigation focuses, and high contrast styling.
+- **Security Protocols:** Helmet headers, Express Rate Limiter, HTTPOnly cookies, Refresh Token Rotation, Double-Submit CSRF cookie checks, and `express-validator` schema validations.
+- **Performance & Efficiency:** React.memo wrapping, useMemo metrics, useCallback event handlers, route-based lazy loading / Suspense code-splitting.
+- **Accessibility (A11y):** Screen reader support, semantic HTML tags, keyboard navigation focuses (visible focus ring indicators), and ARIA attributes (`aria-label`, `aria-expanded`, `aria-live`).
 - **Resilience:** Automatic offline/demo fallback mode if MongoDB or Gemini services are unavailable.
 
 ---
 
 ## 🏗️ Architecture Blueprint
 
+### System Topology
 ```mermaid
 graph TD
-  Fan([FIFA Football Fan]) <-->|HTTPS / JSON| FE[React 19 / Vite App]
-  Admin([Admin Staff]) <-->|Authenticated JWT| FE
-  FE <-->|Axios API Calls| BE[Express Server / Node]
+  Fan([FIFA Football Fan]) <-->|HTTPS / Cookies| FE[React 19 / Vite App]
+  Admin([Admin Staff]) <-->|Authenticated HTTPOnly JWT| FE
+  FE <-->|Axios Services Layer| BE[Express Server / Node]
   BE <-->|Mongoose ODM| DB[(MongoDB Atlas)]
   BE <-->|HTTPS POST| Gemini(Google Gemini API)
+```
+
+### Authentication & API Request Flow
+```mermaid
+sequenceDiagram
+  autonumber
+  actor Fan as Spectator
+  participant Client as React 19 Client
+  participant Server as Express Server
+  participant DB as MongoDB Atlas
+  participant Gemini as Google Gemini API
+
+  Fan->>Client: Enters Question (e.g. closest Gate)
+  Client->>Server: POST /api/ai/chat (headers: x-xsrf-token)
+  note over Server: CSRF check passes
+  note over Server: Reads HTTPOnly Cookie "token"
+  Server->>DB: Logs Query State
+  Server->>Gemini: Fetch Content (temperature: 0.6)
+  Gemini-->>Server: JSON text response
+  Server-->>Client: JSON response (XSRF cookie updated)
+  Client-->>Fan: Displays AI Navigation Response
+```
+
+### Database Schema Entity Relationship Diagram (ERD)
+```mermaid
+erDiagram
+  USER ||--o{ REFRESH_TOKEN : owns
+  USER ||--o{ AI_QUERY : asks
+  USER {
+    ObjectId id PK
+    string name
+    string email UK
+    string password
+    string role
+    date createdAt
+  }
+  REFRESH_TOKEN {
+    ObjectId id PK
+    string token UK
+    string userId FK
+    date expiryDate
+    date createdAt
+  }
+  AI_QUERY {
+    ObjectId id PK
+    string userId FK
+    string category
+    string query
+    string response
+    date createdAt
+  }
+  CROWD_DATA {
+    ObjectId id PK
+    string zone UK
+    string density
+    int queueTimeMinutes
+    string suggestions
+    date updatedAt
+  }
+  EMERGENCY_LOG {
+    ObjectId id PK
+    string type
+    string zone
+    string severity
+    string status
+    string description
+    date createdAt
+  }
+  FEEDBACK {
+    ObjectId id PK
+    string name
+    string email
+    string subject
+    string message
+    date createdAt
+  }
 ```
 
 ---
@@ -34,14 +112,14 @@ graph TD
 ```text
 ├── client/
 │   ├── src/
-│   │   ├── components/       # Common layouts (Navbar, Footer, Countdowns, etc.)
+│   │   ├── components/       # Common layouts (Navbar, Footer, TournamentStatusCard, etc.)
 │   │   ├── context/          # AuthState contexts
 │   │   ├── hooks/            # useAuth hook integrations
 │   │   ├── pages/            # View pages (Heatmap, AIAssistant, Queues, etc.)
-│   │   ├── services/         # Axios API base config
+│   │   ├── services/         # Axios API centralized layer
 │   │   ├── styles/           # Global tailwind CSS styles
 │   │   ├── tests/            # Jest unit renderer tests
-│   │   ├── App.jsx           # Main router config
+│   │   ├── App.jsx           # Main router config with route-splitting
 │   │   └── main.jsx          # Mount root
 │   ├── index.html            # Main markup and SEO headers
 │   ├── tailwind.config.js    # Sports theme configuration
@@ -49,7 +127,7 @@ graph TD
 └── server/
     ├── config/               # Database connection logic
     ├── controllers/          # API route action handlers
-    ├── middleware/           # Protect gates & error interceptors
+    ├── middleware/           # Protect gates, error, validation, & CSRF interceptors
     ├── models/               # MongoDB Mongoose schemas
     ├── routes/               # API route definitions
     ├── services/             # Modular Gemini AI connector
@@ -103,9 +181,8 @@ VITE_API_URL=/api
    ```
 4. Start the server:
    ```bash
-   npm start
+   npm run dev
    ```
-   *(Running in development mode on port 5000)*
 
 ### Step 2: Run the Frontend
 1. Open a new terminal and navigate to the `client/` directory:
@@ -126,7 +203,7 @@ VITE_API_URL=/api
 
 ## 🧪 Testing Suite
 
-We use Jest and Supertest to verify routes and integration states.
+We use Jest and Supertest to verify routes and integration states. Both clients and servers have custom configuration files to handle Windows OneDrive file indexing limitations (`enableSymlinks: true` and `watchman: false`).
 
 ### Running Backend API Tests
 ```bash
@@ -137,6 +214,19 @@ The test suite validates:
 - User signup and login JWT verification.
 - Quick-access demo logins (`admin@fifa.com` / `admin123`).
 - Gemini integration chatbot prompts, companion responses, and sustainability advice.
+- Feedback form submissions and request schema validations.
+- Admin dashboard metrics data structures.
+
+### Running Frontend React Component Tests
+```bash
+cd client
+npm test
+```
+The test suite validates:
+- Navbar rendering and responsive navigation actions.
+- Form inputs binding, validators, and login callbacks.
+- Chat UI message rendering, suggestion chips, and loading states.
+- Admin dashboard stats.
 
 ---
 

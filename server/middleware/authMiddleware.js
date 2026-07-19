@@ -4,23 +4,26 @@ const User = require('../models/User');
 const protect = async (req, res, next) => {
   let token;
 
-  if (
+  // Retrieve token from HTTPOnly cookie first, then fall back to Authorization header
+  if (req.cookies && req.cookies.token) {
+    token = req.cookies.token;
+  } else if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
-    try {
-      // Get token from header
-      token = req.headers.authorization.split(' ')[1];
+    token = req.headers.authorization.split(' ')[1];
+  }
 
+  if (token) {
+    try {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersecretjwtkeyforfifa2026smartstadiums');
 
       // Get user from the token (exclude password)
-      // Use fallback if mongoose isn't connected or User isn't found
       try {
         req.user = await User.findById(decoded.id).select('-password');
       } catch (err) {
-        // Fallback for demo/test mode
+        // Fallback for demo/test/offline mode
         req.user = {
           _id: decoded.id,
           name: decoded.name || 'Demo User',

@@ -75,42 +75,44 @@ const Login = () => {
         </div>
 
         {error && (
-          <div className="mb-6 rounded-lg bg-red-50 border border-red-100 p-4 text-xs text-sports-danger font-medium leading-relaxed">
+          <div className="mb-6 rounded-lg bg-red-50 border border-red-100 p-4 text-xs text-sports-danger font-medium leading-relaxed" role="alert">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold text-sports-navy uppercase tracking-wider mb-2">Email Address</label>
+            <label htmlFor="email" className="block text-xs font-semibold text-sports-navy uppercase tracking-wider mb-2">Email Address</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-sports-muted">
                 <FaEnvelope className="text-sm" />
               </span>
               <input
+                id="email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="yourname@fifa.com"
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm text-sports-navy focus:bg-white transition-colors focus:border-sports-blue"
+                className="w-full rounded-lg border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm text-sports-navy focus:bg-white transition-colors focus:border-sports-blue focus:ring-2 focus:ring-sports-blueLight focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-sports-navy uppercase tracking-wider mb-2">Password</label>
+            <label htmlFor="password" className="block text-xs font-semibold text-sports-navy uppercase tracking-wider mb-2">Password</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-sports-muted">
                 <FaLock className="text-sm" />
               </span>
               <input
+                id="password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm text-sports-navy focus:bg-white transition-colors focus:border-sports-blue"
+                className="w-full rounded-lg border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm text-sports-navy focus:bg-white transition-colors focus:border-sports-blue focus:ring-2 focus:ring-sports-blueLight focus:outline-none"
               />
             </div>
           </div>
@@ -118,13 +120,14 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-sports-blue py-3 font-semibold text-white hover:bg-sports-blueLight transition-all disabled:opacity-50 shadow-premium"
+            aria-label="Sign In"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-sports-blue py-3 font-semibold text-white hover:bg-sports-blueLight transition-all disabled:opacity-50 shadow-premium focus:ring-2 focus:ring-sports-blueLight focus:outline-none"
           >
             {loading ? (
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
             ) : (
               <>
-                <span>Log In</span>
+                <span>Sign In</span>
                 <FaSignInAlt className="text-xs" />
               </>
             )}
@@ -141,7 +144,7 @@ const Login = () => {
             type="button"
             onClick={() => handleQuickLogin('user')}
             disabled={loading}
-            className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2.5 text-xs font-semibold text-sports-navy hover:bg-slate-50 transition-colors"
+            className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2.5 text-xs font-semibold text-sports-navy hover:bg-slate-50 transition-colors focus:ring-2 focus:ring-sports-blueLight focus:outline-none"
           >
             <span>Fan Profile</span>
             <FaArrowRight className="text-[10px] text-sports-blueLight" />
@@ -150,7 +153,7 @@ const Login = () => {
             type="button"
             onClick={() => handleQuickLogin('admin')}
             disabled={loading}
-            className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2.5 text-xs font-semibold text-sports-navy hover:bg-slate-50 transition-colors"
+            className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2.5 text-xs font-semibold text-sports-navy hover:bg-slate-50 transition-colors focus:ring-2 focus:ring-sports-blueLight focus:outline-none"
           >
             <span>Admin Panel</span>
             <FaArrowRight className="text-[10px] text-sports-blueLight" />
@@ -159,7 +162,7 @@ const Login = () => {
 
         <div className="text-center text-xs">
           <span className="text-sports-muted">Don't have an account? </span>
-          <Link to="/register" className="font-semibold text-sports-blue hover:text-sports-blueLight transition-colors">
+          <Link to="/register" className="font-semibold text-sports-blue hover:text-sports-blueLight transition-colors focus:ring-2 focus:ring-sports-blueLight focus:outline-none rounded px-1">
             Register Here
           </Link>
         </div>

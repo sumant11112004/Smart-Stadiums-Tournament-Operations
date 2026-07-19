@@ -5,24 +5,8 @@ const Feedback = require('../models/Feedback');
 // @access  Public
 const submitContact = async (req, res, next) => {
   try {
+    // Note: Request body validation has already been handled by validateContact middleware
     const { name, email, subject, message } = req.body;
-
-    // Server-side input validations
-    if (!name || !email || !subject || !message) {
-      res.status(400);
-      return next(new Error('Please provide all required fields: name, email, subject, message'));
-    }
-
-    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (!emailRegex.test(email)) {
-      res.status(400);
-      return next(new Error('Please provide a valid email address'));
-    }
-
-    if (message.length < 10) {
-      res.status(400);
-      return next(new Error('Message must be at least 10 characters long'));
-    }
 
     let feedback;
     try {

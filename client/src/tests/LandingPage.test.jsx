@@ -11,12 +11,13 @@ jest.mock('framer-motion', () => ({
     p: ({ children, ...props }) => <p {...props}>{children}</p>,
     span: ({ children, ...props }) => <span {...props}>{children}</span>,
   },
+  AnimatePresence: ({ children }) => <>{children}</>,
 }));
 
-// Mock Countdown component since it sets intervals
-jest.mock('../components/CountdownTimer', () => {
-  return function MockedCountdown() {
-    return <div data-testid="mock-countdown">Countdown Timer Mock</div>;
+// Mock TournamentStatusCard component since it ticks intervals and uses animations
+jest.mock('../components/TournamentStatusCard', () => {
+  return function MockedTournamentStatusCard() {
+    return <div data-testid="mock-status-card">Tournament Status Card Mock</div>;
   };
 });
 
@@ -41,8 +42,8 @@ describe('Landing Page Component Rendering', () => {
     );
 
     // Verify presence of buttons
-    const assistantBtn = screen.getByRole('link', { name: /ai assistant/i });
-    expect(assistantBtn).toBeInTheDocument();
+    const commandCenterBtn = screen.getByRole('link', { name: /command center/i });
+    expect(commandCenterBtn).toBeInTheDocument();
   });
 
   it('should list the core stadium telemetry features', () => {

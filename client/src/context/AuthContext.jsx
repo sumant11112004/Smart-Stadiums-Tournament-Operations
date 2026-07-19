@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import { authAPI } from '../services/api';
 
 export const AuthContext = createContext();
 
@@ -14,8 +14,7 @@ export const AuthProvider = ({ children }) => {
     const loadUser = async () => {
       if (token) {
         try {
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const res = await api.get('/auth/profile');
+          const res = await authAPI.profile();
           setUser(res.data);
         } catch (err) {
           console.warn('Session expired or token invalid. Clearing auth.');
@@ -35,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.post('/auth/login', { email, password });
+      const res = await authAPI.login(email, password);
       const { token: userToken, ...userData } = res.data;
       
       localStorage.setItem('token', userToken);
@@ -55,7 +54,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.post('/auth/register', { name, email, password, role });
+      const res = await authAPI.register(name, email, password, role);
       const { token: userToken, ...userData } = res.data;
       
       localStorage.setItem('token', userToken);
@@ -71,7 +70,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Logout handler
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (err) {
+      console.warn('Logout call to server failed, proceeding to clear local session.');
+    }
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);

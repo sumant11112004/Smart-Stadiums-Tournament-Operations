@@ -4,6 +4,8 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
+const { verifyCsrfToken } = require('./middleware/csrfMiddleware');
 
 // Load environment variables
 dotenv.config();
@@ -27,9 +29,18 @@ const app = express();
 // Security Middlewares
 app.use(helmet());
 app.use(cors({
-  origin: '*', // For development, allow all. Configure properly in production.
+  origin: (origin, callback) => {
+    // Mirror the origin dynamically in development/testing to support withCredentials
+    callback(null, true);
+  },
   credentials: true
 }));
+
+// Cookie Parser (required for httpOnly cookies & CSRF verification)
+app.use(cookieParser());
+
+// CSRF Protection Middleware (Double Submit Cookie validation)
+app.use(verifyCsrfToken);
 
 // Logger
 if (process.env.NODE_ENV !== 'test') {
