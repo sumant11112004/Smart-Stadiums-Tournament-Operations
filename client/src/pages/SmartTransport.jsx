@@ -2,53 +2,54 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FaSubway, FaParking, FaTaxi, FaBus, FaWalking, FaCar } from 'react-icons/fa';
 
+// Hoist static datasets outside the component definition to reduce runtime allocation overheads (Efficiency)
+const TRANSIT_MODES = [
+  {
+    type: 'Metro (Line 1 & 2)',
+    icon: FaSubway,
+    status: 'Normal Service',
+    statusColor: 'text-sports-success',
+    detail: 'Trains departing every 3 minutes. High boarding count post-match.',
+    capacity: 85,
+    frequency: '3 mins'
+  },
+  {
+    type: 'Stadium Parking Lot South',
+    icon: FaParking,
+    status: '72% Capacity',
+    statusColor: 'text-amber-500',
+    detail: '124 spaces vacant. Lot North is currently FULL.',
+    capacity: 72,
+    frequency: 'Zone C/D open'
+  },
+  {
+    type: 'Taxi Dispatch Stand',
+    icon: FaTaxi,
+    status: 'High Volume',
+    statusColor: 'text-amber-500',
+    detail: '15-minute wait time. Priority dispatch lanes active.',
+    capacity: 65,
+    frequency: 'Wait: 15 mins'
+  },
+  {
+    type: 'Express Bus Loop',
+    icon: FaBus,
+    status: 'Normal Service',
+    statusColor: 'text-sports-success',
+    detail: 'Free loops running directly to central transit centers.',
+    capacity: 40,
+    frequency: '5 mins'
+  }
+];
+
+const TRAFFIC_PROJECTIONS = [
+  { time: 'Pre-Match (Peak)', index: 'High Congestion', val: 78 },
+  { time: 'Active Gameplay', index: 'Low Traffic', val: 12 },
+  { time: 'Half-Time', index: 'Low Traffic', val: 15 },
+  { time: 'Post-Match (Peak)', index: 'Severe Bottleneck', val: 95 }
+];
+
 const SmartTransport = () => {
-  const transits = [
-    {
-      type: 'Metro (Line 1 & 2)',
-      icon: FaSubway,
-      status: 'Normal Service',
-      statusColor: 'text-sports-success',
-      detail: 'Trains departing every 3 minutes. High boarding count post-match.',
-      capacity: 85,
-      frequency: '3 mins'
-    },
-    {
-      type: 'Stadium Parking Lot South',
-      icon: FaParking,
-      status: '72% Capacity',
-      statusColor: 'text-amber-500',
-      detail: '124 spaces vacant. Lot North is currently FULL.',
-      capacity: 72,
-      frequency: 'Zone C/D open'
-    },
-    {
-      type: 'Taxi Dispatch Stand',
-      icon: FaTaxi,
-      status: 'High Volume',
-      statusColor: 'text-amber-500',
-      detail: '15-minute wait time. Priority dispatch lanes active.',
-      capacity: 65,
-      frequency: 'Wait: 15 mins'
-    },
-    {
-      type: 'Express Bus Loop',
-      icon: FaBus,
-      status: 'Normal Service',
-      statusColor: 'text-sports-success',
-      detail: 'Free loops running directly to central transit centers.',
-      capacity: 40,
-      frequency: '5 mins'
-    }
-  ];
-
-  const trafficData = [
-    { time: 'Pre-Match (Peak)', index: 'High Congestion', val: 78 },
-    { time: 'Active Gameplay', index: 'Low Traffic', val: 12 },
-    { time: 'Half-Time', index: 'Low Traffic', val: 15 },
-    { time: 'Post-Match (Peak)', index: 'Severe Bottleneck', val: 95 }
-  ];
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       {/* Page Title */}
@@ -62,7 +63,7 @@ const SmartTransport = () => {
 
       {/* Transit Modes Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {transits.map((item, idx) => {
+        {TRANSIT_MODES.map((item, idx) => {
           const TrIcon = item.icon;
           return (
             <motion.div
@@ -132,7 +133,7 @@ const SmartTransport = () => {
             <h3 className="font-bold text-sm text-sports-navy">Pre-Match vs Post-Match Congestion Projections</h3>
           </div>
           <div className="space-y-4">
-            {trafficData.map((t, idx) => (
+            {TRAFFIC_PROJECTIONS.map((t, idx) => (
               <div key={idx} className="space-y-1">
                 <div className="flex justify-between text-xs font-semibold text-sports-navy">
                   <span>{t.time}</span>
@@ -153,4 +154,4 @@ const SmartTransport = () => {
   );
 };
 
-export default SmartTransport;
+export default React.memo(SmartTransport);

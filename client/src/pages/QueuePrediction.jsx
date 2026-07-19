@@ -2,77 +2,78 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaClock, FaUtensils, FaShieldAlt, FaParking, FaRestroom, FaInfoCircle } from 'react-icons/fa';
 
+// Hoist static data structures outside component to optimize memory footprint and prevent recreation on render (Efficiency)
+const QUEUE_DATA = {
+  food: {
+    label: 'Concessions & Food Courts',
+    icon: FaUtensils,
+    average: '14 Mins',
+    peak: '28 Mins (Half-Time)',
+    trend: 'Declining slightly',
+    chartData: [
+      { time: 'Pre-Match', wait: 15 },
+      { time: 'Kick-off', wait: 4 },
+      { time: '1st Half', wait: 6 },
+      { time: 'Half-Time', wait: 28 },
+      { time: '2nd Half', wait: 8 },
+      { time: 'Post-Match', wait: 18 }
+    ],
+    tips: 'Concession blocks behind Sections 105 and 124 have digital prepay pickup lines. Order via the stadium mobile app during the 40th minute to skip the main half-time rush.'
+  },
+  security: {
+    label: 'Entrance Security Gates',
+    icon: FaShieldAlt,
+    average: '8 Mins',
+    peak: '22 Mins (1 hour pre-match)',
+    trend: 'Low queue times active',
+    chartData: [
+      { time: '2h Pre', wait: 12 },
+      { time: '1h Pre', wait: 24 },
+      { time: '30m Pre', wait: 16 },
+      { time: 'Kick-off', wait: 5 },
+      { time: '1st Half', wait: 2 },
+      { time: 'Half-Time', wait: 1 }
+    ],
+    tips: 'Security Gate D is currently the clearest gate (3 min wait). Gate B is heavily congested due to high arrival volumes from public transit connections.'
+  },
+  parking: {
+    label: 'Stadium Parking Exits',
+    icon: FaParking,
+    average: '18 Mins',
+    peak: '40 Mins (Post-Match)',
+    trend: 'Stable flow',
+    chartData: [
+      { time: 'Kick-off', wait: 1 },
+      { time: '1st Half', wait: 1 },
+      { time: 'Half-Time', wait: 2 },
+      { time: '2nd Half', wait: 1 },
+      { time: 'Full-Time', wait: 35 },
+      { time: '1h Post', wait: 15 }
+    ],
+    tips: 'Parking Lot North is currently 98% full. Lot South is operating at 70% and is highly recommended. Outbound exit lanes will be reversed to double outbound traffic flow post-match.'
+  },
+  restroom: {
+    label: 'Restroom Complexes',
+    icon: FaRestroom,
+    average: '6 Mins',
+    peak: '15 Mins (Half-Time)',
+    trend: 'High local variation',
+    chartData: [
+      { time: 'Pre-Match', wait: 8 },
+      { time: '1st Half', wait: 2 },
+      { time: 'Half-Time', wait: 16 },
+      { time: '2nd Half', wait: 3 },
+      { time: 'Full-Time', wait: 10 },
+      { time: 'Post-Match', wait: 5 }
+    ],
+    tips: 'Restroom complexes behind Section 112 are under-utilized. Avoid the central Concourse A restroom block during the first 10 minutes of half-time.'
+  }
+};
+
 const QueuePrediction = () => {
   const [activeTab, setActiveTab] = useState('food');
 
-  const queueData = {
-    food: {
-      label: 'Concessions & Food Courts',
-      icon: FaUtensils,
-      average: '14 Mins',
-      peak: '28 Mins (Half-Time)',
-      trend: 'Declining slightly',
-      chartData: [
-        { time: 'Pre-Match', wait: 15 },
-        { time: 'Kick-off', wait: 4 },
-        { time: '1st Half', wait: 6 },
-        { time: 'Half-Time', wait: 28 },
-        { time: '2nd Half', wait: 8 },
-        { time: 'Post-Match', wait: 18 }
-      ],
-      tips: 'Concession blocks behind Sections 105 and 124 have digital prepay pickup lines. Order via the stadium mobile app during the 40th minute to skip the main half-time rush.'
-    },
-    security: {
-      label: 'Entrance Security Gates',
-      icon: FaShieldAlt,
-      average: '8 Mins',
-      peak: '22 Mins (1 hour pre-match)',
-      trend: 'Low queue times active',
-      chartData: [
-        { time: '2h Pre', wait: 12 },
-        { time: '1h Pre', wait: 24 },
-        { time: '30m Pre', wait: 16 },
-        { time: 'Kick-off', wait: 5 },
-        { time: '1st Half', wait: 2 },
-        { time: 'Half-Time', wait: 1 }
-      ],
-      tips: 'Security Gate D is currently the clearest gate (3 min wait). Gate B is heavily congested due to high arrival volumes from public transit connections.'
-    },
-    parking: {
-      label: 'Stadium Parking Exits',
-      icon: FaParking,
-      average: '18 Mins',
-      peak: '40 Mins (Post-Match)',
-      trend: 'Stable flow',
-      chartData: [
-        { time: 'Kick-off', wait: 1 },
-        { time: '1st Half', wait: 1 },
-        { time: 'Half-Time', wait: 2 },
-        { time: '2nd Half', wait: 1 },
-        { time: 'Full-Time', wait: 35 },
-        { time: '1h Post', wait: 15 }
-      ],
-      tips: 'Parking Lot North is currently 98% full. Lot South is operating at 70% and is highly recommended. Outbound exit lanes will be reversed to double outbound traffic flow post-match.'
-    },
-    restroom: {
-      label: 'Restroom Complexes',
-      icon: FaRestroom,
-      average: '6 Mins',
-      peak: '15 Mins (Half-Time)',
-      trend: 'High local variation',
-      chartData: [
-        { time: 'Pre-Match', wait: 8 },
-        { time: '1st Half', wait: 2 },
-        { time: 'Half-Time', wait: 16 },
-        { time: '2nd Half', wait: 3 },
-        { time: 'Full-Time', wait: 10 },
-        { time: 'Post-Match', wait: 5 }
-      ],
-      tips: 'Restroom complexes behind Section 112 are under-utilized. Avoid the central Concourse A restroom block during the first 10 minutes of half-time.'
-    }
-  };
-
-  const selectedData = queueData[activeTab];
+  const selectedData = QUEUE_DATA[activeTab];
   const IconComponent = selectedData.icon;
 
   // Max value in chartData to scale heights
@@ -91,13 +92,13 @@ const QueuePrediction = () => {
 
       {/* Tabs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-        {Object.entries(queueData).map(([key, value]) => {
+        {Object.entries(QUEUE_DATA).map(([key, value]) => {
           const TabIcon = value.icon;
           return (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`flex items-center justify-center gap-3 rounded-xl p-4 border font-bold text-xs transition-all ${
+              className={`flex items-center justify-center gap-3 rounded-xl p-4 border font-bold text-xs transition-all focus:ring-2 focus:ring-sports-blueLight focus:outline-none ${
                 activeTab === key
                   ? 'bg-sports-navy border-sports-navy text-white shadow-premium'
                   : 'bg-white border-slate-100 hover:border-slate-350 text-sports-navy'
@@ -164,7 +165,7 @@ const QueuePrediction = () => {
               <div>
                 <span className="text-[10px] text-sports-muted font-bold uppercase tracking-wider block">Telemetry Trend</span>
                 <span className="text-xs font-semibold text-sports-success flex items-center gap-1.5 mt-1">
-                  <span className="h-2 w-2 rounded-full bg-sports-success animate-pulse"></span>
+                  <span className="h-2 w-2 rounded-full bg-sports-success animate-pulse" aria-hidden="true"></span>
                   {selectedData.trend}
                 </span>
               </div>
@@ -174,7 +175,7 @@ const QueuePrediction = () => {
           {/* AI Tips */}
           <div className="rounded-2xl gradient-navy p-6 text-white shadow-premium border border-slate-800">
             <div className="flex items-center gap-2 text-sports-blueLight mb-3">
-              <FaInfoCircle />
+              <FaInfoCircle aria-hidden="true" />
               <h4 className="font-bold text-xs uppercase tracking-wider">Gemini Dispatch Recommendation</h4>
             </div>
             <p className="text-xs text-gray-300 leading-relaxed font-light">
@@ -187,4 +188,4 @@ const QueuePrediction = () => {
   );
 };
 
-export default QueuePrediction;
+export default React.memo(QueuePrediction);

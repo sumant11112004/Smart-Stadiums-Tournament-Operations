@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import { 
@@ -7,6 +7,15 @@ import {
   FaBolt, FaTint, FaSubway, FaParking, FaUsers, FaClock, 
   FaPlay, FaPause, FaHistory, FaCheck, FaExclamationCircle
 } from 'react-icons/fa';
+
+// Move static arrays outside of the component to prevent recreation on every render (Efficiency)
+const TIMELINE_STAGES = [
+  { id: 'normal', label: '1. Arrival', desc: 'Gates open' },
+  { id: 'surge', label: '2. Peak Surge', desc: 'Congestion detected' },
+  { id: 'medical', label: '3. Medical Case', desc: 'Sec 104 dispatch' },
+  { id: 'weather', label: '4. Lightning Warning', desc: 'Shelter broadcast' },
+  { id: 'dispersal', label: '5. Post-Match', desc: 'Spectator dispersal' }
+];
 
 const CommandCenter = () => {
   // Scenario states: normal (Pre-Match), surge (Peak Crowd), medical (Incident), weather (Storm), dispersal (Post-Match)
@@ -30,17 +39,8 @@ const CommandCenter = () => {
   const [adviceLoading, setAdviceLoading] = useState(false);
   const cctvRef = useRef(null);
 
-  // Guided Walkthrough timeline stages
-  const timelineStages = [
-    { id: 'normal', label: '1. Arrival', desc: 'Gates open' },
-    { id: 'surge', label: '2. Peak Surge', desc: 'Congestion detected' },
-    { id: 'medical', label: '3. Medical Case', desc: 'Sec 104 dispatch' },
-    { id: 'weather', label: '4. Lightning Warning', desc: 'Shelter broadcast' },
-    { id: 'dispersal', label: '5. Post-Match', desc: 'Spectator dispersal' }
-  ];
-
-  // Dynamic values depending on active scenario
-  const getScenarioData = () => {
+  // Memoizing dynamic scenario data values to prevent extra computations on state changes (Efficiency)
+  const scData = useMemo(() => {
     switch (scenario) {
       case 'surge':
         return {
@@ -94,9 +94,7 @@ const CommandCenter = () => {
           ambulancePos: null
         };
     }
-  };
-
-  const scData = getScenarioData();
+  }, [scenario]);
 
   // Match clock ticking loop
   useEffect(() => {
@@ -215,7 +213,7 @@ const CommandCenter = () => {
 
     renderCCTV();
     return () => cancelAnimationFrame(frameId);
-  }, [scenario]);
+  }, [scenario, scData]);
 
   // LIVE SENSOR TICKER SIMULATION LOOP
   useEffect(() => {
@@ -280,8 +278,8 @@ const CommandCenter = () => {
     }
   }, [scenario]);
 
-  // Fetch advice from Gemini
-  const handleFetchScenarioGeminiAdvice = async () => {
+  // Fetch advice from Gemini (Memoized with useCallback for performance)
+  const handleFetchScenarioGeminiAdvice = useCallback(async () => {
     setAdviceLoading(true);
     setAiAdvice('');
     
@@ -314,10 +312,10 @@ const CommandCenter = () => {
     } finally {
       setAdviceLoading(false);
     }
-  };
+  }, [scenario, attendance]);
 
-  // Stepper handler
-  const handleTimelineStageClick = (stageId) => {
+  // Stepper handler (Memoized with useCallback)
+  const handleTimelineStageClick = useCallback((stageId) => {
     setScenario(stageId);
     setAiAdvice('');
     
@@ -343,7 +341,7 @@ const CommandCenter = () => {
       setParkingOcc(85);
       setActiveMedicalCases(0);
     }
-  };
+  }, []);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
@@ -406,7 +404,7 @@ const CommandCenter = () => {
         <div className="lg:col-span-9 flex flex-col gap-2">
           <span className="text-[10px] text-sports-muted font-bold uppercase tracking-wider block">Guided Match Day Scenario Stepper</span>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-            {timelineStages.map((stage) => (
+            {TIMELINE_STAGES.map((stage) => (
               <button
                 key={stage.id}
                 onClick={() => handleTimelineStageClick(stage.id)}
@@ -573,11 +571,11 @@ const CommandCenter = () => {
               {scenario === 'medical' && scData.ambulancePos && (
                 <>
                   <path
-                    d="M 200 340 C 290 340, 315 285, 315 200"
-                    fill="none"
-                    stroke="#EF4444"
-                    strokeWidth="2.5"
-                    strokeDasharray="5,3"
+                     d="M 200 340 C 290 340, 315 285, 315 200"
+                     fill="none"
+                     stroke="#EF4444"
+                     strokeWidth="2.5"
+                     strokeDasharray="5,3"
                   />
                   <motion.circle
                     cx="315"
@@ -587,7 +585,6 @@ const CommandCenter = () => {
                     animate={{ scale: [1, 1.4, 1] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
                   />
-                  {/* Ambulance label */}
                   <text x="325" y="200" fill="#EF4444" fontSize="8" fontWeight="bold" fontFamily="monospace">EMT VEHICLE</text>
                 </>
               )}
@@ -607,7 +604,7 @@ const CommandCenter = () => {
 
         {/* RIGHT COLUMN: PROACTIVE AI DISPATCH & LIVE CHARTS */}
         <div className="lg:col-span-3 space-y-6">
-          {/* Proactive AI Insights Panel (AI Everywhere) */}
+          {/* Proactive AI Insights Panel */}
           <div className="rounded-2xl border border-slate-150 bg-white p-5 shadow-premium space-y-3 relative overflow-hidden">
             <div className="absolute top-0 right-0 left-0 h-1 bg-sports-blueLight animate-pulse"></div>
             
@@ -656,11 +653,11 @@ const CommandCenter = () => {
             )}
           </div>
 
-          {/* NEW: LIVE SVG DATA VISUALIZATIONS */}
+          {/* SVG DATA VISUALIZATIONS */}
           <div className="rounded-2xl bg-white p-5 shadow-premium border border-slate-100 space-y-4">
             <span className="text-xs font-bold text-sports-navy uppercase tracking-wider block">Live Operational Charts</span>
             
-            {/* 1. Gate Occupancy Bar Chart (SVG) */}
+            {/* Gate Occupancy Bar Chart */}
             <div className="space-y-1.5">
               <span className="text-[9px] font-bold text-sports-muted uppercase tracking-widest block">Gate Occupancy Bars</span>
               <div className="h-20 w-full flex items-end justify-between border-b border-slate-100 pb-1 px-1 bg-slate-50/50 rounded-lg p-2 border border-slate-100">
@@ -685,7 +682,7 @@ const CommandCenter = () => {
               </div>
             </div>
 
-            {/* 2. Transport Load Speedometer Circle (SVG) */}
+            {/* Transport Load Speedometer Circle */}
             <div className="space-y-1.5">
               <span className="text-[9px] font-bold text-sports-muted uppercase tracking-widest block">Transport Load Index</span>
               <div className="flex items-center gap-4 bg-slate-50/50 rounded-lg p-2 border border-slate-100">
@@ -713,15 +710,15 @@ const CommandCenter = () => {
               </div>
             </div>
 
-            {/* 3. Crowd Trend Spline Line (SVG) */}
+            {/* Crowd Trend Spline Line */}
             <div className="space-y-1.5">
               <span className="text-[9px] font-bold text-sports-muted uppercase tracking-widest block">Spectator Arrival Trend</span>
               <div className="bg-slate-50/50 rounded-lg p-2 border border-slate-100">
                 <svg viewBox="0 0 100 30" width="100%" height="30">
                   <motion.path
                     d={scenario === 'dispersal' 
-                      ? "M0,5 Q20,10 40,25 T80,30" // dropping trend
-                      : "M0,28 Q30,22 60,10 T100,5" // rising trend
+                      ? "M0,5 Q20,10 40,25 T80,30" 
+                      : "M0,28 Q30,22 60,10 T100,5" 
                     }
                     fill="none"
                     stroke="#10B981"

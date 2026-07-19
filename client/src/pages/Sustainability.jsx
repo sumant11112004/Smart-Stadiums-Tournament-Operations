@@ -1,59 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
 import { FaLeaf, FaBolt, FaTint, FaTrashAlt, FaCloud, FaChevronRight, FaInfoCircle } from 'react-icons/fa';
+
+// Hoist static array to optimize memory usage and rendering efficiency (Efficiency)
+const ECO_METRICS = [
+  {
+    title: 'Solar & Renewable Grid',
+    icon: FaBolt,
+    val: '4.8 MWh',
+    trend: '+12% generation',
+    desc: 'Off-grid battery storage is currently at 84% charge.',
+    progress: 84
+  },
+  {
+    title: 'Water Recovery Loop',
+    icon: FaTint,
+    val: '3,240 m³',
+    trend: '94% recycled',
+    desc: 'Pitch irrigation is completely supplied by rainwater loops.',
+    progress: 94
+  },
+  {
+    title: 'Waste Sorting Divert',
+    icon: FaTrashAlt,
+    val: '78.2%',
+    trend: '+4% diversion',
+    desc: 'Compostable packaging enforced at all concession stalls.',
+    progress: 78
+  },
+  {
+    title: 'Carbon Offset Savings',
+    icon: FaCloud,
+    val: '42.5 Tonnes',
+    trend: 'Avoided CO₂',
+    desc: 'Spectators using electric transport lines increased by 18%.',
+    progress: 68
+  }
+];
 
 const Sustainability = () => {
   const [suggestion, setSuggestion] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const metrics = [
-    {
-      title: 'Solar & Renewable Grid',
-      icon: FaBolt,
-      val: '4.8 MWh',
-      trend: '+12% generation',
-      desc: 'Off-grid battery storage is currently at 84% charge.',
-      progress: 84
-    },
-    {
-      title: 'Water Recovery Loop',
-      icon: FaTint,
-      val: '3,240 m³',
-      trend: '94% recycled',
-      desc: 'Pitch irrigation is completely supplied by rainwater loops.',
-      progress: 94
-    },
-    {
-      title: 'Waste Sorting Divert',
-      icon: FaTrashAlt,
-      val: '78.2%',
-      trend: '+4% diversion',
-      desc: 'Compostable packaging enforced at all concession stalls.',
-      progress: 78
-    },
-    {
-      title: 'Carbon Offset Savings',
-      icon: FaCloud,
-      val: '42.5 Tonnes',
-      trend: 'Avoided CO₂',
-      desc: 'Spectators using electric transport lines increased by 18%.',
-      progress: 68
-    }
-  ];
-
-  const handleFetchAdvice = async () => {
+  // Memoizing event handlers using useCallback (Efficiency)
+  const handleFetchAdvice = useCallback(async () => {
     setLoading(true);
     setSuggestion('');
     try {
-      const res = await api.post('/ai/sustainability', { query: 'Provide immediate, detailed operational suggestions to optimize water, carbon, waste, and solar grids at the arena.' });
+      const res = await api.post('/ai/sustainability', { 
+        query: 'Provide immediate, detailed operational suggestions to optimize water, carbon, waste, and solar grids at the arena.' 
+      });
       setSuggestion(res.data.response);
     } catch (err) {
       setSuggestion('Could not contact sustainability coordinator. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -69,7 +73,7 @@ const Sustainability = () => {
         <button
           onClick={handleFetchAdvice}
           disabled={loading}
-          className="rounded-lg bg-sports-navy px-5 py-2.5 text-xs font-bold text-white hover:bg-sports-navyLight transition-all shadow-premium hover:shadow-premiumHover flex items-center gap-2"
+          className="rounded-lg bg-sports-navy px-5 py-2.5 text-xs font-bold text-white hover:bg-sports-navyLight transition-all shadow-premium hover:shadow-premiumHover flex items-center gap-2 focus:ring-2 focus:ring-sports-blueLight focus:outline-none"
         >
           {loading ? (
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
@@ -84,7 +88,7 @@ const Sustainability = () => {
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {metrics.map((m, idx) => {
+        {ECO_METRICS.map((m, idx) => {
           const MIcon = m.icon;
           return (
             <motion.div
@@ -160,4 +164,4 @@ const Sustainability = () => {
   );
 };
 
-export default Sustainability;
+export default React.memo(Sustainability);
